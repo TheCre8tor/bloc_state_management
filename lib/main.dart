@@ -1,4 +1,5 @@
-import 'package:bloc_state_management/cubit/names_cubit.dart';
+import 'package:bloc_state_management/cubit/counter_cubit.dart';
+import 'package:bloc_state_management/cubit/counter_state.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -10,33 +11,27 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+    return const MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: MyHomePage(),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  final String title;
+  const MyHomePage({super.key});
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  late final NamesCubit cubit;
+  late final CounterCubit cubit;
 
   @override
   void initState() {
     super.initState();
-
-    cubit = NamesCubit();
+    cubit = CounterCubit();
   }
 
   @override
@@ -47,35 +42,35 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: StreamBuilder(
-        stream: cubit.stream,
-        builder: (context, snapshot) {
-          final button = TextButton(
-            onPressed: cubit.pickRandomName,
-            child: const Text("Pick a Ramdom Name"),
-          );
+    print("Rendering...");
 
-          switch (snapshot.connectionState) {
-            case ConnectionState.none:
-              return button;
-            case ConnectionState.waiting:
-              return button;
-            case ConnectionState.active:
-              return Column(
-                children: [
-                  Text(snapshot.data ?? ""),
-                  const SizedBox(height: 25),
-                  button,
-                ],
-              );
-            case ConnectionState.done:
-              return const SizedBox.shrink();
-          }
-        },
+    return Scaffold(
+      body: Padding(
+        padding: const EdgeInsets.all(25),
+        child: StreamBuilder<CounterState>(
+          stream: cubit.stream,
+          builder: (context, snapshot) {
+            print(snapshot.data?.count);
+
+            return Column(
+              children: [
+                Text("${snapshot.data?.count ?? 0}"),
+                TextButton(
+                  onPressed: () {
+                    cubit.increment();
+                  },
+                  child: const Text("Increment"),
+                ),
+                TextButton(
+                  onPressed: () {
+                    cubit.decrement();
+                  },
+                  child: const Text("Decrement"),
+                ),
+              ],
+            );
+          },
+        ),
       ),
     );
   }
